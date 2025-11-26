@@ -1,0 +1,55 @@
+const express = require("express");
+const app = express()
+const router = express.Router()
+const { connectMongoose } = require('./src/config/db_connection');
+const dotenv = require("dotenv").config()
+const path = require('path');
+const morgan = require("morgan");
+const multer = require("multer");
+app.use(morgan("dev"));
+
+connectMongoose(process.env.DB);
+
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
+
+
+
+app.use(express.static(path.join(__dirname, "./src/public")))
+app.use("/uploads", express.static("uploads"));
+
+
+app.set('views', path.join(__dirname, './src/ejs'));
+
+
+app.get("/",(req,res)=>{
+    res.redirect("/login")
+})
+
+app.use("/",require("./src/routes/login"))
+app.use("/",require("./src/routes/register"))
+app.use("/",require("./src/routes/otp"))
+
+// dashbord 
+app.use("/",require("./src/routes/dashbord"))
+// manage files
+app.use("/",require("./src/routes/manage_files"))
+
+// upload files
+app.use("/",require("./src/routes/file_storage_route"))
+// all files
+// app.use("/",require("./src/routes/all_files"))
+
+// logout
+app.use("/",require("./src/routes/logout"));
+// resetpwd
+app.use("/",require("./src/routes/resetpwd")) ;
+
+// gemini api
+app.use("/",require("./src/routes/gemini_api"));
+
+
+app.listen(5555,()=>{
+  console.log("https://localhost/5555")
+})
